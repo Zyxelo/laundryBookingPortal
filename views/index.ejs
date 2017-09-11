@@ -21,19 +21,24 @@
     <link rel="stylesheet" href="/stylesheets/datepicker.css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <script>
-      function bookClick(id) {
-        var slot=id.split('-')[1]
+
+
+      function bookClick() {
+        var slot=choosenDate.split('-')[1]
+        var name = $('#booking-name').val();
         $.ajax({
           url: "/dates/book",
           method: "PUT",
-          data: {slot: slot, booker: "test", time: currentDay},
+          data: {slot: slot, booker: name, time: currentDay},
           success: function(data) {
             console.log(data);
+            $('#button-'+slot).attr("data-target", "");
+            $('#button-'+slot).attr("data-toggle", "");
             $('#button-'+slot).attr("onclick", "unBookClick(this.id)");
             $('#button-'+slot).text('Avboka');
             $('#button-'+slot).addClass('mdl-button--primary')
             $('#button-'+slot).removeClass('mdl-button--accent')
-            $('#name-'+slot).text("Av: "+data.booker);
+            $('#name-'+slot).text(name);
           }
         });
       }
@@ -46,8 +51,9 @@
           method: "PUT",
           data: {slot: slot, booker: "test", time: currentDay},
           success: function(data) {
-            console.log(data);
-            $('#button-'+slot).attr("onclick", "bookClick(this.id)");
+            $('#button-'+slot).attr("data-target", "#myModal");
+            $('#button-'+slot).attr("data-toggle", "modal");
+            $('#button-'+slot).attr("onclick", "choosenDate = this.id");
             $('#button-'+slot).text('Boka');
             $('#button-'+slot).addClass('mdl-button--accent')
             $('#button-'+slot).removeClass('mdl-button--primary')
@@ -58,7 +64,9 @@
 
       var calendar;
       var currentDay;
+      var choosenDate;
       $(document).ready(function() {
+
         calendar = flatpickr("#calendar", {
           minDate: "today",
           defaultDate: "today",
@@ -76,13 +84,18 @@
                   console.log(time.booked);
 
                   if (!time.booked) {
-                    $('#button-'+index).attr("onclick", "bookClick(this.id)");
+
+                    $('#button-'+index).attr("data-target", "#myModal");
+                    $('#button-'+index).attr("data-toggle", "modal");
+                    $('#button-'+index).attr("onclick", "choosenDate = this.id");
                     $('#button-'+index).text('Boka');
                     $('#button-'+index).addClass('mdl-button--accent')
                     $('#button-'+index).removeClass('mdl-button--primary')
                     $('#name-'+index).text('');
 
                   } else {
+                    $('#button-'+index).attr("data-target", "");
+                    $('#button-'+index).attr("data-toggle", "");
                     $('#button-'+index).attr("onclick", "unBookClick(this.id)");
                     $('#button-'+index).text('Avboka');
                     $('#button-'+index).addClass('mdl-button--primary')
@@ -97,16 +110,44 @@
         })
         var today =calendar.selectedDates[0];
 
+
+
+
         currentDay = today.getFullYear() + "-" + ("0" + (today.getMonth() + 1)).slice(-2) + "-" + today.getDate();
       })
 
     </script>
   </head>
-  <body >
+  <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog modal-lg" style="max-width: 90%">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header text-center"">
+            <h1 class="modal-title text-center" style="font-size: 6rem;">Skriv in ditt namn</h1>
+          </div>
+          <div class="modal-body">
+            <div class="mdl-textfield mdl-js-textfield" style="width:100%">
+              <input class="mdl-textfield__input" type="text" id="booking-name" style="font-size: 6rem">
+              <label class="mdl-textfield__label" for="sample1" style="font-size: 6rem">Namn...</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button style="height: 12rem !important;" data-dismiss="modal" class="mdl-button mdl-js-button  mdl-button--raised mdl-js-ripple-effect mdl-button--primary" onclick="bookClick(this.id)">Boka Tid</button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
     <div class="text-center"><h1>Boka Tvättid</h1></div>
     <div class="text-center">
       <input id="calendar" style="font-size: 4.5rem" class="text-center mdl-cell mdl-cell--6-col">
     </div>
+
 
 
 
@@ -117,13 +158,13 @@
             <%if (!data.timeslots[i].booked) {%>
           <h3 id="name-<%=i%>"></h3>
             <% } else {%>
-          <h3 id="name-<%=i%>">Av:<%=  " "+data.timeslots[i].booker %> </h3>
+          <h3 id="name-<%=i%>"><%= data.timeslots[i].booker %> </h3>
             <% } %>
 
         </div>
         <div class="mdl-cell mdl-cell--4-col "><!-- Accent-colored raised button with ripple -->
           <%if (!data.timeslots[i].booked) {%>
-          <button id="button-<%=i%>" onclick="bookClick(this.id)" class="mdl-button mdl-js-button  mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+          <button id="button-<%=i%>" onclick="choosenDate = this.id" data-toggle="modal" data-target="#myModal" class="mdl-button mdl-js-button  mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
             Boka
           </button>
             <% } else {%>
