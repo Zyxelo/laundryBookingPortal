@@ -9,10 +9,15 @@ var index = require('./routes/index');
 var dates = require('./routes/dates');
 
 var app = express();
+var uristring =
+  process.env.MONGOLAB_URI ||
+  process.env.MONGOHQ_URL ||
+  'mongodb://localhost:27017/laundryBooking';
+
 
 // Set up mongoDB
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/laundryBooking', (error) => {
+mongoose.connect(uristring, (error) => {
   if (error) {
     throw error;
   }
