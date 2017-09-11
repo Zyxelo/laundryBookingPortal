@@ -1,0 +1,26 @@
+
+a {
+  color: #00B7FF;
+}
+
+
+h1 {
+  font-size: 5rem !important;
+}
+
+h3 {
+  font-size: 3.5rem !important;
+}
+
+button {
+  font-size: 3.5rem !important;
+  height: 7rem !important;
+  width: 100% !important;
+
+}
+
+input[type=date] {
+
+  font-size: 4.5rem;
+  text-align: center!important;
+}
